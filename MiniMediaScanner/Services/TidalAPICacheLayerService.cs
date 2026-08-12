@@ -39,10 +39,10 @@ public class TidalAPICacheLayerService
         return await _tidalAPIService.AuthenticateAsync(secretToken);
     }
 
-    public async Task<TidalSearchResponse?> SearchResultsArtistsAsync(string searchTerm)
+    public async Task<TidalSearchQueryResponse?> SearchResultsArtistsAsync(string searchTerm)
     {
         string cacheKey = $"SearchResultsArtists_{searchTerm}";
-        if (!_cache.TryGetValue(cacheKey, out TidalSearchResponse? result))
+        if (!_cache.TryGetValue(cacheKey, out TidalSearchQueryResponse? result))
         {
             result = await _tidalAPIService.SearchResultsArtistsAsync(searchTerm);
             AddToCache(cacheKey, result);
