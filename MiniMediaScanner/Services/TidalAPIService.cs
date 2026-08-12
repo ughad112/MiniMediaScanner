@@ -13,7 +13,7 @@ namespace MiniMediaScanner.Services;
 public class TidalAPIService
 {
     private const string AuthTokenUrl = "https://auth.tidal.com/v1/oauth2/token";
-    private const string SearchResultArtistsUrl = "https://openapi.tidal.com/v2/searchResults/";
+    private const string SearchResultArtistsUrl = "https://openapi.tidal.com/v2/searchResults";
     private const string ArtistsIdUrl = "https://openapi.tidal.com/v2/artists/{0}";
     private const string TracksByAlbumIdUrl = "https://openapi.tidal.com/v2/albums/{0}";
     private const string TracksUrl = "https://openapi.tidal.com/v2/tracks";
@@ -68,7 +68,7 @@ public class TidalAPIService
         return token;
     }
     
-    public async Task<TidalSearchResponse?> SearchResultsArtistsAsync(string searchTerm)
+    public async Task<TidalSearchQueryResponse?> SearchResultsArtistsAsync(string searchTerm)
     {
         TidalTokenClientSecret? secretToken = await GetNextTokenSecretAsync();
         AsyncRetryPolicy retryPolicy = GetRetryPolicy();
@@ -76,20 +76,21 @@ public class TidalAPIService
 
         return await retryPolicy.ExecuteAsync(async () =>
         {
-            RestClientOptions options = new RestClientOptions(SearchResultArtistsUrl + Uri.EscapeDataString(searchTerm));
+            RestClientOptions options = new RestClientOptions(SearchResultArtistsUrl);
             await ProxyManagerService.SetProxySettingsAsync(options);
             using RestClient client = new RestClient(options);
             RestRequest request = new RestRequest();
             request.AddHeader("Authorization", $"Bearer {secretToken.AuthenticationResponse.AccessToken}");
             request.AddHeader("Accept", "application/vnd.api+json");
             request.AddHeader("Content-Type", "application/vnd.api+json");
+            request.AddParameter("filter[query]", searchTerm);
             if (!string.IsNullOrWhiteSpace(_countryCode))
             {
                 request.AddParameter("countryCode", _countryCode);
             }
             request.AddParameter("include", "artists");
             
-            return await client.GetAsync<TidalSearchResponse>(request);
+            return await client.GetAsync<TidalSearchQueryResponse>(request);
         });
     }
     
