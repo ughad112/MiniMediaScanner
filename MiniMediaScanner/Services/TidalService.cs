@@ -437,7 +437,9 @@ public class TidalService
         foreach(int trackId in trackIdsMissingSimilar)
         {
             await ProcessSimilarTrackAsync(trackId, tidalPullingState, updateTidalRepository);
-                
+            await updateTidalRepository.CommitAsync();
+            await updateTidalRepository.SetConnectionAsync();
+            
             callback?.Invoke(new UpdateTidalCallback(artistId, 
                 artistInfo.Data.Attributes.Name,
                 string.Empty,
@@ -469,7 +471,10 @@ public class TidalService
         foreach(int albumId in albumIdsMissingSimilar)
         {
             await ProcessSimilarAlbumAsync(albumId, tidalPullingState, updateTidalRepository);
-                
+
+            await updateTidalRepository.CommitAsync();
+            await updateTidalRepository.SetConnectionAsync();
+
             callback?.Invoke(new UpdateTidalCallback(artistId, 
                 artistInfo.Data.Attributes.Name,
                 string.Empty,
@@ -499,6 +504,9 @@ public class TidalService
         foreach(int similarArtistId in artistIdsMissingSimilar)
         {
             await ProcessSimilarArtistAsync(similarArtistId, tidalPullingState, callback, artistInfo, updateTidalRepository);
+
+            await updateTidalRepository.CommitAsync();
+            await updateTidalRepository.SetConnectionAsync();
         }
     }
 
